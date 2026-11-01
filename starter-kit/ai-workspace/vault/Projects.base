@@ -1,0 +1,19 @@
+filters:
+  and:
+    - 'type == "project"'
+    - 'status == "active"'
+views:
+  - type: table
+    name: Active
+    order:
+      - file.name
+      - outcome
+      - file.mtime
+  - type: table
+    name: Stalled 14 days
+    filters:
+      and:
+        - 'file.mtime < now() - "14 days"'
+    order:
+      - file.name
+      - file.mtime

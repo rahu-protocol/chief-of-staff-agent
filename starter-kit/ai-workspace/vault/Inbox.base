@@ -1,0 +1,17 @@
+formulas:
+  age: 'file.ctime.relative()'
+properties:
+  formula.age:
+    displayName: Added
+views:
+  - type: table
+    name: Inbox
+    filters:
+      and:
+        - 'file.inFolder("Inbox")'
+    order:
+      - file.name
+      - formula.age
+    sort:
+      - property: file.ctime
+        direction: ASC

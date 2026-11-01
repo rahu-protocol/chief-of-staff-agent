@@ -1,0 +1,16 @@
+filters:
+  and:
+    - 'type == "task"'
+    - 'status != "done"'
+    - 'status != "dropped"'
+views:
+  - type: table
+    name: Open
+    order:
+      - file.name
+      - status
+      - project
+      - due
+    sort:
+      - property: note.due
+        direction: ASC
