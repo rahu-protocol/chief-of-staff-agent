@@ -5,12 +5,12 @@ This phase turns a generic agent into yours. The rules file says how the system 
 1. **Install the agent and point it at the vault.**
    - Claude: in the desktop app's Code tab, open the `vault` folder. From a terminal, `cd` into the vault and run `claude`.
    - Codex: in the Codex app, add the `vault` folder as a project. From a terminal, `cd` into the vault and run `codex`.
-   - Keep approvals on (Codex: Default permissions, not Full access). You want to see every command until you trust the setup.
+   - Use restricted permissions and review their scope. A default mode may allow workspace reads and writes without asking. Test an allowed practice edit and a blocked action before using personal notes.
 2. **Install the Obsidian skills.** These teach the agent wikilinks, properties, Bases and Canvas, so its notes look like yours.
    - Claude Code: `/plugin marketplace add kepano/obsidian-skills`, then `/plugin install obsidian@obsidian-skills`.
    - Codex and other agents: `npx skills add https://github.com/kepano/obsidian-skills` (needs Node.js).
-   - Two of the skills reach outside the vault: `defuddle` fetches web pages and `obsidian-cli` drives the Obsidian app. Approvals cover both.
-3. **Write the rules.** The starter kit has both rules files: [`AGENTS.md`](../starter-kit/ai-workspace/AGENTS.md) for the workspace and [`vault/AGENTS.md`](../starter-kit/ai-workspace/vault/AGENTS.md) for the vault. Edit the folder list and data rules to fit you. Next to each sits a `CLAUDE.md` containing one line, `@AGENTS.md`, so Claude Code reads the same rules. Building by hand? Copy those four files.
+   - Two of the skills reach outside the vault: `defuddle` fetches web pages and `obsidian-cli` drives the Obsidian app. Their tools inherit the access you grant, so review their capabilities separately.
+3. **Write the rules.** The starter kit has both rules files: [`AGENTS.md`](../starter-kit/ai-workspace/AGENTS.md) for the workspace and [`vault/AGENTS.md`](../starter-kit/ai-workspace/vault/AGENTS.md) for the vault. Edit the folder list and data rules to fit you. Next to each sits a `CLAUDE.md` containing one line, `@AGENTS.md`, so Claude Code reads the same rules. Building by hand? Copy those four files. Start a fresh session and check that it reads both the vault rules and the parent workspace rules, including after the vault becomes a Git repo. Instruction files guide behavior, while tool settings enforce access.
 4. **Create the context layer.** Add a `Context` folder and a `People` folder. These are the chief of staff's working memory about you. The starter kit includes both, with [starter notes](../starter-kit/ai-workspace/vault/Context/) to fill in.
 
 | Note | Holds | Who edits |
@@ -23,7 +23,7 @@ This phase turns a generic agent into yours. The rules file says how the system 
 
 Keep each context note under a page. Agents read them at the start of most jobs, so length costs time and usage on every run.
 
-5. **Run the onboarding interview.** Start a session in the vault and type `Follow agents/prompts/onboarding-interview.md`, or paste the [onboarding prompt](../starter-kit/ai-workspace/vault/agents/prompts/onboarding-interview.md). The agent asks you questions for about 20 minutes, then writes drafts of the context notes and your first project and area notes as a plan for you to approve.
+5. **Run the onboarding interview.** Start a session in the vault and type `Follow agents/prompts/onboarding-interview.md`, or paste the [onboarding prompt](../starter-kit/ai-workspace/vault/agents/prompts/onboarding-interview.md). The agent asks questions, then writes a uniquely named plan containing proposed context and project notes. Tick the entries you approve and ask an interactive session to apply that exact plan path. Review the changed files and its apply report.
 6. **Use it the same day.** Ask it what to work on today, to draft a reply using what it knows about the person, or to turn a messy meeting note into tasks. Each correction you make is raw material for Phase 6.
 
 The reference build covers steps 1 to 3. The context layer and interview are additions for the chief-of-staff role, built on the same rules: the agent proposes, you approve.

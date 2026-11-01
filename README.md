@@ -2,21 +2,21 @@
 
 A playbook and starter kit for building a personal chief of staff agent with Obsidian, GitHub and a frontier agent such as Claude Code or Codex. The core setup needs no coding.
 
-Last reviewed November 2026. Agent products change monthly, so [Verification status and sources](docs/16-verification-and-sources.md) marks what was tested and what comes from vendor docs.
+Product sources reviewed November 1, 2026. Agent products change monthly, so [Verification status and sources](docs/16-verification-and-sources.md) marks what was tested and what comes from vendor docs.
 
-You end up with a chief of staff agent whose memory is a folder of plain Markdown notes. Your phone is the inbox, a frontier agent (Claude Code, Codex, or a desktop agent app) does the work, and one rules file tells every agent how your system works. The agent gets more useful because everything it learns about you, your projects and your preferences is written back into those notes, where you can read and correct it.
+You build a chief of staff agent around a shared folder of Markdown notes. Your phone captures new work, an agent such as Claude Code or Codex reads the relevant notes, and rules describe what it may change. Approved priorities, decisions and corrections go into the vault so you can inspect them and use them with another agent.
 
-The design rule that makes it safe to hand over real work: **the agent proposes, you approve, then it acts.** Plans land as checkbox lists you tick from any device. Nothing gets deleted outright, and every change has history.
+The working rule is **propose, approve, apply**. Changes to existing notes start as a plan you review. Approved deletes go to the vault trash. Git can restore committed snapshots once history is configured and checked. Written rules guide the agent, while tool permissions control what it can actually do.
 
 This playbook comes from a working reference build: an Obsidian vault synced to phone and tablet, backed up to a private GitHub repo, worked on by Claude Code and Codex under a shared rules file, with scheduled triage and digest jobs. That build also runs local models. Most people should skip that part, so it sits in an optional section at the end.
 
 | Tier | What you get | Setup time (estimate) | Skill needed |
 | --- | --- | --- | --- |
 | 1. Core | Vault on every device, one-tap capture from your phone, an agent that reads and writes the vault under your rules | 2 hours | None |
-| 2. Loops | Full history on GitHub, scheduled inbox triage, a morning brief and a weekly review you approve by ticking boxes | 2 to 3 more hours | Pasting terminal commands |
-| 3. Always-on | A dedicated machine, agent sessions started from your phone, more than one agent on the same files, email and calendar connected | A weekend | Comfortable in a terminal |
+| 2. Loops | Committed history on GitHub, scheduled inbox triage, a morning brief and a weekly review you approve by ticking boxes | 2 to 3 more hours | Pasting terminal commands |
+| 3. Always-on | A dedicated machine, agent sessions started from your phone, agents in separate working copies, email and calendar connected | A weekend | Comfortable in a terminal |
 
-Stop at whichever tier covers what you need. Tier 1 alone is a real improvement over a chat assistant that forgets you between sessions.
+Stop at whichever tier covers what you need. Tier 1 gives you a shared, editable record of context that works alongside an agent's built-in memory.
 
 ## Quick start
 

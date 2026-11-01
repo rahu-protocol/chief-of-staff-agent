@@ -2,7 +2,7 @@
 
 Everything in [`ai-workspace/`](ai-workspace/) is meant to be copied into your own AI workspace folder, such as `C:\ai\` or `~/ai/`. Copy it, then open `vault` in Obsidian with Open folder as vault. Don't work inside the downloaded repo, or your notes end up mixed with the playbook's files.
 
-These are the reference build's working files, generalized. Edit the folder names and data rules to fit you.
+These templates adapt the reference build and add chief-of-staff prompts. Some components remain untested, as listed in the [verification chapter](../docs/16-verification-and-sources.md). Edit the data rules, verify loaded instructions and run one vault writer at a time.
 
 | File | What it does | Edit it? |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ These are the reference build's working files, generalized. Edit the folder name
 | [`vault/AGENTS.md`](ai-workspace/vault/AGENTS.md) | Note rules: properties, folders, inbox triage plan format, lessons | Only if you change the schema |
 | [`vault/CLAUDE.md`](ai-workspace/vault/CLAUDE.md) | Same one-line pointer for the vault | No |
 | [`vault/.obsidian/app.json`](ai-workspace/vault/.obsidian/app.json) | Obsidian settings: new notes to `Inbox`, attachments to `Attachments`, links updated on rename, deletes to `.trash` | Check them once in Settings, Files and links |
-| [`vault/.gitignore`](ai-workspace/vault/.gitignore) | Keeps window layouts and the trash out of Git | No |
+| [`vault/.gitignore`](ai-workspace/vault/.gitignore) | Keeps window layouts, trash and environment files out of Git | No |
 | [`vault/Inbox/Capture.md`](ai-workspace/vault/Inbox/Capture.md) | The capture log your phone appends to | No |
 | [`vault/Inbox.base`](ai-workspace/vault/Inbox.base) | Inbox backlog, oldest first | No |
 | [`vault/Projects.base`](ai-workspace/vault/Projects.base) | Active projects, plus a view of those untouched for 14 days | No |
@@ -21,7 +21,7 @@ These are the reference build's working files, generalized. Edit the folder name
 | `vault/People/` | One note per person you work with | The agent proposes these |
 | [`vault/agents/prompts/`](ai-workspace/vault/agents/prompts/) | The nine prompts from the [prompt library](../docs/11-prompt-library.md) | Improve them over time |
 | [`vault/agents/log.md`](ai-workspace/vault/agents/log.md) | One line per agent job | Agents append |
-| `vault/agents/outputs/` | Plans, briefs and reviews, one dated file per run | Agents write here |
+| `vault/agents/outputs/` | Plans, briefs and reviews, one unique file per run with time and run ID | Agents write here |
 | Empty folders | `Projects`, `Areas`, `Tasks`, `Notes`, `Archive`, `Attachments`. Each holds a hidden `.gitkeep` file so Git keeps the folder | No |
 
 The `.base` files and `app.json` were written from Obsidian's documented syntax and settings. If a view's sort or filter misbehaves, set it once from the view's menu in Obsidian and it rewrites the file.

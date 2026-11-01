@@ -1,50 +1,52 @@
 # Phase 4: Daily and weekly loops (tier 2)
 
-Three scheduled jobs make the agent work without being asked. Each writes one dated file to `agents/outputs/` and one line to `agents/log.md`, and each is a prompt from the [prompt library](11-prompt-library.md).
+Run each job interactively before scheduling it. Every run uses a fresh output name, `YYYY-MM-DD-HHMMSS-<run-id>-<slug>.md`, and records its result in `agents/log.md`. A run ID distinguishes repeated jobs in the same second. Check that the path does not exist before writing. Never replace an earlier plan or output.
 
 | Job | When | Reads | Writes |
 | --- | --- | --- | --- |
-| Inbox triage | Weekdays, 2 or 3 times a day | `Inbox/`, `Capture.md`, existing projects and areas | A checkbox plan, one line per inbox item |
-| Morning brief | Weekdays, before you start | Priorities, active projects, open and overdue tasks, yesterday's log, calendar if connected | Top three for today, due and overdue, waiting on others, one question |
-| Weekly review | Friday afternoon or Sunday | Everything changed this week, projects untouched for 14 days | Wins, stalled projects, proposed priority changes, proposed lessons, all as checkboxes |
+| Inbox triage plan | Weekdays, initially once a day | Inbox, capture log, projects and areas | One unticked plan, with the exact source for each action |
+| Morning brief | Weekdays, before work | Priorities, tasks, decisions and available calendar data | A linked brief with missing information stated |
+| Weekly review | Friday afternoon or weekend | Recent changes and active work | Proposed changes as unticked checkboxes |
+
+Run one writer at a time, including manual sessions, schedules and Git updates. Do not edit a plan from two devices while applying it. More frequent triage can come later if it stays useful and jobs do not overlap.
 
 ## Where the jobs run
 
-| Runs on | Tool | Fires when | How it reaches the vault | Use for |
+| Runs on | Tool | Requirements | File access | Use for |
 | --- | --- | --- | --- | --- |
-| Your computer | Claude desktop app, local scheduled task | App open and computer awake. A missed run gets one catch-up on wake | Works in the folder directly | Tier 2 default for Claude users |
-| Your computer | Codex app automation | App running and computer awake | Works in the folder directly | Tier 2 default for ChatGPT users |
-| Cloud | Claude cloud scheduled task | Computer can be off. Minimum interval one hour | Fresh clone of the GitHub repo. Output reaches your phone only after a computer running Obsidian pulls it | Tier 3, or briefs built mostly from email and calendar connectors |
+| Your computer | Claude Desktop local scheduled task | App running and computer awake | Selected local folder | Start here for Claude users |
+| Your computer | Codex local project schedule | Computer on and desktop app running | Project directory or isolated worktree, as selected | Select the actual vault copy, or review and merge worktree output |
+| Cloud | Repository-based Claude scheduled task | Configured repository, environment and tools | Repository copy, not Obsidian Sync | Optional after testing the review and sync path |
 
-Start with local tasks. They see the vault as it is, need no GitHub round trip, and stop when your computer sleeps, which is a reasonable safety limit while you're learning what the jobs do.
+These are the paths covered by this build. Current products also offer other cloud schedules. Check the job's execution location, account access and tools instead of assuming it sees your local vault.
 
 ## Create a local scheduled task in the Claude desktop app
 
-1. Code tab, then Scheduled in the sidebar (some accounts still say Routines), then New task. If asked, choose Set up manually.
-2. Name it, for example `morning-brief`. In the instructions box, enter `Follow agents/prompts/morning-brief.md exactly.` Pointing at the file means a prompt you improve in the vault reaches the schedule without editing the task. Pasting the prompt text also works.
-3. Under Advanced settings, General, turn on Only on this computer and pick the `vault` folder.
-4. Under Trigger, pick Weekdays and a time. Choose a few minutes off the hour.
-5. Pick the permission mode and model in the instructions toolbar, then Create.
-6. Click Run now, watch for permission prompts, and choose always allow for the reads and writes the job needs. Later runs won't stall.
-7. If the computer idles to sleep before the run, turn on Keep computer awake in the desktop app settings.
+1. **Open the schedule form.** In Claude Desktop's Code tab, open Scheduled, then New task. Some versions show Routines. If offered, choose Set up manually.
+2. **Choose local execution.** Select Local or turn on Only on this computer, depending on the form. If that switch is at the top, turn it on before filling the rest of the form. Select the vault folder.
+3. **Name the job and point to its prompt.** For example, name it morning-brief and enter Follow agents/prompts/morning-brief.md exactly. A saved file keeps later prompt edits in one place.
+4. **Set the schedule.** Choose weekdays and a local time. Separate jobs so their expected run times do not overlap.
+5. **Review the permission mode and model.** Grant only the file and tool access this job needs. Rules in a prompt do not restrict a tool technically.
+6. **Run it while watching.** Use Run now, inspect the output and log, and review any permission request. Save only narrow approvals you understand. Some tools require interaction on every call, so a watched success does not guarantee unattended runs will finish.
+7. **Check sleep and missed-run behavior.** Local Claude schedules need the app open and computer awake. Its documented catch-up behavior can produce a late run, so inspect run history and keep the brief and review time checks.
 
-A catch-up run can fire hours late, so the brief and review prompts check the time and day before they act. For Codex, refine the job in a normal thread first, then turn it into an automation set to run in the local project. This playbook doesn't cover Codex's menus click by click, so check its current docs.
+For Codex, test the prompt in a normal chat first, then create a schedule for the local project. Confirm whether it runs in the project or a worktree. An unattended run may fail or wait when permissions are insufficient. See the current [scheduled task guide](https://learn.chatgpt.com/docs/automations).
 
 ## If you use cloud scheduled tasks
 
-- **Tell it where to push.** Cloud runs push to a `claude/` branch unless the prompt names another. Branch output never reaches Obsidian, so the prompt must say to commit to `main`.
-- **Keep it in its lane.** It may only add new files under `agents/outputs/` and append to `agents/log.md`. New files never conflict with the desktop's own commits.
-- **Trim connectors.** All of your connectors are included by default, writes included. Remove every one the job doesn't need.
-- **Expect no prompts.** Cloud runs use an auto-approval mode, so the prompt and the trimmed connectors are your only limits.
-- **Read the output, not the status.** A run marked Succeeded only means the session ended without error.
+- **Review the output branch.** Repository-based cloud jobs can write to a separate branch. Review and merge intended changes into the branch the desktop pulls. Direct writes to that branch require an explicit decision and coordinated Git access.
+- **Coordinate every writer.** Unique output files reduce overlap, but agents/log.md, notes and branch updates remain shared. Start with one writer in the vault. A cloud run may write its own report, with the desktop writer adding the log entry after review.
+- **Trim connectors.** Claude's documented cloud task form includes connected MCP tools by default, potentially with write access. Remove tools the task does not need and check provider-side scopes.
+- **Check actual permission behavior.** New Claude cloud sessions normally use auto mode, which reviews some actions automatically, but ask rules, repeated blocks and account settings can still pause a run. Codex schedules have their own permission settings. Test each execution environment separately.
+- **Read the output and history.** A Succeeded session status does not establish that every requested file or change exists.
 
 ## Who applies the ticked triage lines
 
-The plan step is safe to schedule because it writes one new file and changes nothing else. The apply step moves notes, so choose deliberately.
+The scheduled plan step writes a proposal and a log entry. Applying a plan can move, edit or remove notes and needs a separate review.
 
-- **Start interactive.** When you've ticked a plan, open a session and say "apply today's triage plan." Watch it work for the first two weeks.
-- **Then schedule it.** The reference build applies ticks with a short script, not the model, three times a day. The script only touches plans it recorded as fully unticked when they were saved, applies each ticked line once, and ignores plans older than seven days, so every tick provably came from you. If you can't run a script, a scheduled agent apply is acceptable once git is in place, because every move can be reverted. Read its apply report.
-- **Keep the rule.** Unticked lines stay where they are.
+- **Keep application interactive in this starter kit.** After reviewing and ticking entries, name the full plan path in your request. Have the agent validate each selected action, check previous apply reports, and show the intended changes before applying.
+- **Keep an application record.** The report names the exact source plan and each applied, skipped or uncertain action. Skip actions already recorded as applied. If the source changed, identical capture lines are ambiguous, or a previous run stopped without a reliable report, ask before continuing.
+- **Treat the reference script separately.** The reference build uses custom code to record newly created unticked plans and track application. That script is not included here, and a checkbox alone does not prove who approved it. Do not schedule note-moving or deletion with these prompts alone.
 
 ---
 

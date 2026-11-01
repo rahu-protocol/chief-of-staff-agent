@@ -25,9 +25,11 @@ This folder is the shared workspace for all AI agents on this machine. Read this
 
 Every unattended job must:
 
-1. Write its output to a new dated file (`YYYY-MM-DD-<slug>.md`). Never overwrite existing files.
-2. Append one line to `vault/agents/log.md` (format is in that file).
+1. Write its output to a fresh `YYYY-MM-DD-HHMMSS-<run-id>-<slug>.md` file. Use local time and a newly generated run ID. Check the path does not exist. Never overwrite an earlier output.
+2. Run one writer at a time in the vault, including log updates. Append one line to `vault/agents/log.md` after checking the output (format is in that file). Cloud runs leave a report for the desktop writer to review and log.
 3. Report the output path. A person checks the file, not the agent's message.
+
+Written rules guide behavior. Configure tool permissions separately and verify which rule files each runtime loads. These templates do not implement locks or authenticated approvals.
 
 ## Data rules
 
@@ -38,6 +40,6 @@ Every unattended job must:
 
 ## External actions
 
-- Email and messages: create drafts only. Never send.
-- Calendar: read, and propose holds. Never accept, decline or delete.
+- Email and messages: write draft text under vault/agents/ by default. Creating a draft in an external service needs specific write authorization. Never send without explicit authorization.
+- Calendar: read and propose holds locally. Creating a real hold or event needs specific write authorization. Never invite, accept, decline or delete without explicit authorization.
 - Connectors are read-only unless a person grants write access for a specific task.

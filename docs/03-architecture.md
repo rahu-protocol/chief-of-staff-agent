@@ -1,46 +1,46 @@
 # Architecture
 
-Five parts do all the work: a folder of notes, a way to get that folder onto every device, a history of every change, an agent with written rules, and a scheduler. Everything else is optional.
+Five parts organize the work: a folder of notes, device sync, committed history, an agent with written rules, and a scheduler. Everything else is optional.
 
 | Part | Job | Reference build | Tier |
 | --- | --- | --- | --- |
-| Obsidian vault | Memory and workspace. Plain Markdown files any agent can read and write | One vault in the shared AI folder on the desktop | 1 |
-| Obsidian Sync | Puts the vault on phone and tablet, end-to-end encrypted | Sync Standard | 1 |
-| Rules file (`AGENTS.md`) | The operating manual every agent reads before acting: folders, note schema, what it may change | One at the workspace root, one in the vault; `CLAUDE.md` imports it | 1 |
-| Agent | Does the work in the vault under the rules | Claude Code and Codex on the same files | 1 |
-| Obsidian skills | Teach agents Obsidian formats: wikilinks, properties, Bases, Canvas, the Obsidian CLI | kepano/obsidian-skills | 1 |
-| GitHub private repo + Obsidian Git plugin | Full history and undo. Also the only door cloud agents can use | Desktop plugin set to commit every 10 minutes | 2 |
-| Scheduler | Runs triage, briefs and reviews without you asking | Scheduled jobs on the desktop | 2 |
-| Remote access | Start and steer agent sessions from your phone | A phone app connected to a desktop agent session, plus a separate repair path | 3 |
-| Connectors | Email, calendar, drive, task tools | Added per job, read-only first | 3 |
+| Obsidian vault | Shared memory and workspace in Markdown files | One vault on the desktop | 1 |
+| Obsidian Sync | Syncs the vault across devices, with end-to-end encryption | Sync Standard | 1 |
+| Rules files | Describe folders, schema, approval workflow and permitted changes | Workspace and vault AGENTS.md files, with CLAUDE.md imports | 1 |
+| Agent | Reads relevant notes and performs authorized work | Claude Code and Codex | 1 |
+| Obsidian skills | Instructions for Obsidian formats and tools | kepano/obsidian-skills | 1 |
+| Private GitHub repo and desktop Git plugin | Committed snapshots, pushed off-site; a repository copy for cloud jobs | Commit-and-sync interval configured at 10 minutes | 2 |
+| Scheduler | Starts triage, briefs and reviews | Local jobs first | 2 |
+| Remote access | Starts or steers sessions on a connected computer | Separate session access and repair access | 3 |
+| Connectors | Read selected calendar, email or drive data | Granted per job, read-only first | 3 |
 
-One constraint shapes every later choice: **cloud agents can see GitHub, not Obsidian Sync.** A computer running Obsidian bridges the two by committing and pulling. When no such computer is on, anything a cloud agent writes waits on GitHub until one is. That is why tier 3 adds an always-on machine, and why tier 2 runs its scheduled jobs on your own computer.
+In this design, local jobs use the vault on your computer and repository-based cloud jobs use its GitHub copy. Obsidian Sync does not give those cloud jobs a filesystem connection to the vault. A computer running Obsidian and the Git plugin bridges the copies after reviewed cloud changes reach its tracked branch.
 
 ```mermaid
 flowchart LR
-    phone["Phone and tablet<br/>capture to Inbox<br/>approve by ticking"]
+    phone["Phone and tablet<br/>capture and review"]
     pc["Your computer<br/>vault, rules, context<br/>Obsidian + Git plugin"]
-    local["Local agent<br/>Claude Code or Codex"]
-    gh["GitHub private repo<br/>every version kept"]
-    cloud["Cloud agent<br/>runs with the computer off"]
+    local["Local agent<br/>one vault writer at a time"]
+    gh["Private GitHub repo<br/>pushed snapshots"]
+    cloud["Repository-based cloud job<br/>works from its repository copy"]
     phone <-->|Obsidian Sync| pc
     pc <-->|reads rules, writes outputs| local
     pc <-->|commits and pulls| gh
-    gh <-->|clones, pushes to main| cloud
-    phone -.->|Remote Control, tier 3| local
+    gh <-->|review branch, then merge| cloud
+    phone -.->|Remote access, tier 3| local
 ```
 
-Phone and cloud never touch: Sync carries notes to your computer, the Git plugin carries them to GitHub, and cloud agents only ever see GitHub.
+The arrows show the paths used by this build. Other products can support additional cloud and remote connections, so check the execution location and file access of the job you create.
 
 ## Design principles
 
-1. **Files are the source of truth.** Built-in agent memory belongs to one agent and one vendor. Durable knowledge goes in the vault, where you and every agent can read and correct it. Switching vendors later costs nothing.
-2. **One rules file for every agent.** Write conventions once in `AGENTS.md`. Codex reads it natively. Claude Code reads it when no `CLAUDE.md` exists, and a one-line `CLAUDE.md` containing `@AGENTS.md` guarantees it.
-3. **Propose, approve, apply.** Anything that moves, renames or removes notes starts as a checkbox plan. You tick what you approve, on any device, and only ticked lines are applied.
-4. **Agents write in their own lane.** Job output goes to new dated files under `agents/outputs/`, plus one line per job in `agents/log.md`. Nothing is overwritten. New files never collide with your own edits, so Sync and git stay conflict-free.
-5. **Check the file, not the message.** An agent saying "done" proves nothing. Claude's cloud scheduler marks a run Succeeded when the session ends without error, whether or not the work got done. In the reference build, a model once claimed a file held content it did not.
-6. **One committer.** Only one desktop runs the Git plugin. Phones and tablets use Sync. Two devices auto-committing to one repo produces merge conflicts, and conflict markers then sync everywhere.
-7. **Recoverable by default.** Approved deletes go to `.trash/`. Git keeps every version. The agent never hard-deletes.
+1. **Files are the shared record.** Keep approved context in the vault. Built-in memory can complement it. Check which notes each agent loads when you change tools.
+2. **Share rules and verify loading.** Codex discovers guidance from its project root down to the working folder. A parent workspace file may sit outside that chain once the vault is its own repo, so the vault rules explicitly ask the agent to read it. Claude Code can load AGENTS.md or import it through CLAUDE.md. Confirm the loaded files in each tool.
+3. **Propose, approve, apply.** Existing-note changes start as a checkbox plan. Name the exact plan when asking an interactive session to apply your selected changes. Written rules do not authenticate who ticked a box or replace tool permissions.
+4. **Give each run a unique output.** Use YYYY-MM-DD-HHMMSS-<run-id>-<slug>.md, check that the path does not exist, and never replace an earlier output. Run one writer at a time in the vault, including updates to agents/log.md. Separate files reduce conflicts but do not eliminate them.
+5. **Check the file, not the message.** Inspect outputs and changes before accepting a success report. Claude cloud task status describes how the session ended, not whether every requested result exists.
+6. **One desktop handles Git sync.** Phones and tablets use Obsidian Sync. Pause automation while resolving a conflict, check both sides, and resume only after the files and history agree.
+7. **Keep tested recovery points.** Approved deletes go to .trash/. Git can restore committed content, and GitHub holds pushed commits. Neither records every edit between commits. Test restoring a sample note before unattended work.
 
 ---
 
